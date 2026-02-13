@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For You ❤️</title>
+
+<style>
+  :root{
+    --bg: #ffc0cb;
+    --card: rgba(255,255,255,0.45);
+    --shadow: 0 10px 30px rgba(0,0,0,0.12);
+    --yes: #ff4d6d;
+    --no: #9a9a9a;
+    --text: #111;
+  }
+
+  *{ box-sizing: border-box; }
+
+  /* ✅ allow scrolling */
+  body{
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    min-height: 100svh;
+    padding: 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display:block;
+  }
+
+  .wrap{
+    width: min(980px, 100%);
+    text-align:center;
+    background: var(--card);
+    backdrop-filter: blur(6px);
+    border-radius: 24px;
+    padding: 28px 22px;
+    box-shadow: var(--shadow);
+    margin: 0 auto;
+  }
+
+  h1{
+    margin: 0 0 18px 0;
+    font-size: clamp(28px, 4vw, 44px);
+    color: var(--text);
+    font-weight: 800;
+  }
+
+  .videoCol{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin-bottom:18px;
+  }
+
+  video{
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 9 / 16;
+    border-radius: 18px;
+    object-fit: cover;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.15);
+  }
+
+  .musicRow{ margin-bottom: 18px; }
+
+  .btn{
+    padding: 12px 22px;
+    font-size: 18px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+    transition: transform 120ms ease;
+    touch-action: manipulation;
+  }
+  .btn:active{ transform: scale(0.98); }
+
+  .btn-music{
+    background: rgba(255,255,255,0.85);
+    color: #111;
+  }
+
+  .arena{
+    width: min(420px, 100%);
+    height: 170px;
+    margin: 0 auto;
+    position: relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 18px;
+  }
+
+  #yes{
+    background: var(--yes);
+    color: white;
+    min-width: 140px;
+  }
+
+  #no{
+    background: var(--no);
+    color: white;
+    min-width: 140px;
+    position: relative;
+    left: 0;
+    top: 0;
+  }
+
+  .celebrate{
+    font-size: clamp(34px,5vw,56px);
+    margin: 10px 0;
+  }
+</style>
+</head>
+
+<body>
+
+  <audio id="bgMusic" loop>
+    <source src="song.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="wrap" id="content">
+    <h1>Will you be my Valentineee albi? 💗</h1>
+
+    <!-- ✅ VIDEO AT THE TOP -->
+    <div class="videoCol">
+      <video id="sideVideo" playsinline muted loop autoplay controls preload="auto">
+        <source src="video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="musicRow">
+      <button class="btn btn-music" onclick="playMusic()">Play music 🎶</button>
+    </div>
+
+    <div class="arena" id="arena">
+      <button class="btn" id="yes" onclick="yesClicked()">YESSSSS 💗</button>
+
+      <button
+        class="btn"
+        id="no"
+        onpointerenter="runNo()"
+        onpointerdown="runNo()"
+        ontouchstart="runNo()"
+      >
+        no 😢
+      </button>
+    </div>
+  </div>
+
+<script>
+let noIsRunning = false;
+
+const directions = [
+  {dx:  1, dy:  0},{dx: -1, dy:  0},{dx:  0, dy:  1},{dx:  0, dy: -1},
+  {dx:  1, dy:  1},{dx:  1, dy: -1},{dx: -1, dy:  1},{dx: -1, dy: -1}
+];
+
+function playMusic(){
+  const music = document.getElementById("bgMusic");
+  music.volume = 0.6;
+  music.play().catch(()=>{});
+}
+
+function yesClicked(){
+  playMusic();
+  document.getElementById("content").innerHTML = `
+    <div class="celebrate">YAYYYYYYYYYYYYY!!! 💗💗💗</div>
+    <h2>I love youuu so much my baby noor!</h2>
+  `;
+}
+
+function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+function runNo(){
+  const btn = document.getElementById("no");
+  const arena = document.getElementById("arena");
+
+  if (!noIsRunning){
+    noIsRunning = true;
+    const b = btn.getBoundingClientRect();
+    const a = arena.getBoundingClientRect();
+    btn.style.position = "absolute";
+    btn.style.left = (b.left - a.left) + "px";
+    btn.style.top  = (b.top  - a.top) + "px";
+  }
+
+  const bw = btn.offsetWidth;
+  const bh = btn.offsetHeight;
+  const pad = 6;
+
+  const maxX = arena.clientWidth  - bw - pad;
+  const maxY = arena.clientHeight - bh - pad;
+
+  let curX = parseFloat(btn.style.left);
+  let curY = parseFloat(btn.style.top);
+  if (Number.isNaN(curX)) curX = (arena.clientWidth - bw) / 2;
+  if (Number.isNaN(curY)) curY = (arena.clientHeight - bh) / 2;
+
+  const d = directions[Math.floor(Math.random() * directions.length)];
+  const step = 60 + Math.random() * 140;
+
+  const jitter = 20 + Math.random() * 40;
+  const jx = (Math.random() < 0.5 ? -1 : 1) * jitter;
+  const jy = (Math.random() < 0.5 ? -1 : 1) * jitter;
+
+  let newX = curX + d.dx * step + (d.dy !== 0 ? jx : 0);
+  let newY = curY + d.dy * step + (d.dx !== 0 ? jy : 0);
+
+  newX = clamp(newX, pad, Math.max(pad, maxX));
+  newY = clamp(newY, pad, Math.max(pad, maxY));
+
+  btn.style.left = newX + "px";
+  btn.style.top  = newY + "px";
+}
+
+/* autoplay fallback for iOS */
+(function initVideoAutoplay(){
+  const v = document.getElementById("sideVideo");
+  const tryPlay = () => v.play().catch(()=>{});
+  document.addEventListener("DOMContentLoaded", tryPlay);
+  window.addEventListener("load", tryPlay);
+
+  const once = () => {
+    tryPlay();
+    window.removeEventListener("touchstart", once);
+    window.removeEventListener("click", once);
+  };
+  window.addEventListener("touchstart", once, {passive:true});
+  window.addEventListener("click", once);
+})();
+</script>
+
+</body>
+</html>
